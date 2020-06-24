@@ -107,16 +107,17 @@
           </div>
           <div class="form-field">
             <label for="phone">Τηλέφωνο</label>
-            <input type="number" v-model="phone" />
+            <input type="number" v-model="phone" required />
           </div>
           <div class="form-field">
             <label for="email">Email</label>
-            <input type="mail" v-model="email" />
+            <input type="mail" v-model="email" required />
           </div>
           <div class="form-field">
             <button v-if="!dateError && !errorTime" type="submit" @click="calculate">Δείτε το κόστος</button>
           </div>
         </form>
+        <h4 style="margin-top:2rem;">Το εκτιμόμενο κόστος για την υπηρεσία είναι: {{ total_cost }}€</h4>
       </section>
     </main>
     <footer style="background-color: #26a2f0;color:#fff;padding:4rem 0;">
@@ -162,6 +163,7 @@
 <script>
 import { DatePicker } from "v-calendar";
 import VueTimepicker from "vue2-timepicker";
+import axios from "axios";
 
 export default {
   name: "Calendar",
@@ -180,7 +182,70 @@ export default {
       phone: null,
       email: null,
       dateError: false,
-      errorTime: false
+      errorTime: false,
+      calcData: {
+        2: { payroll_cost: 8.7 },
+        3: { payroll_cost: 8.66 },
+        4: { payroll_cost: 8.61 },
+        5: { payroll_cost: 8.57 },
+        6: { payroll_cost: 8.53 },
+        7: { payroll_cost: 8.48 },
+        8: { payroll_cost: 8.44 },
+        9: { payroll_cost: 8.4 },
+        10: { payroll_cost: 8.36 },
+        11: { payroll_cost: 8.32 },
+        12: { payroll_cost: 8.27 },
+        13: { payroll_cost: 8.23 },
+        14: { payroll_cost: 8.19 },
+        15: { payroll_cost: 8.15 },
+        16: { payroll_cost: 8.11 },
+        17: { payroll_cost: 8.07 },
+        18: { payroll_cost: 8.03 },
+        19: { payroll_cost: 7.99 },
+        20: { payroll_cost: 7.95 },
+        21: { payroll_cost: 7.91 },
+        22: { payroll_cost: 7.87 },
+        23: { payroll_cost: 7.83 },
+        24: { payroll_cost: 7.79 },
+        25: { payroll_cost: 7.75 },
+        26: { payroll_cost: 7.71 },
+        27: { payroll_cost: 7.68 },
+        28: { payroll_cost: 7.64 },
+        29: { payroll_cost: 7.6 },
+        30: { payroll_cost: 7.56 },
+        31: { payroll_cost: 7.52 },
+        32: { payroll_cost: 7.49 },
+        33: { payroll_cost: 7.45 },
+        34: { payroll_cost: 7.41 },
+        35: { payroll_cost: 7.37 },
+        36: { payroll_cost: 7.34 },
+        37: { payroll_cost: 7.3 },
+        38: { payroll_cost: 7.26 },
+        39: { payroll_cost: 7.23 },
+        40: { payroll_cost: 7.2 },
+        41: { payroll_cost: 7.2 },
+        42: { payroll_cost: 7.2 },
+        43: { payroll_cost: 7.2 },
+        44: { payroll_cost: 7.2 },
+        45: { payroll_cost: 7.2 },
+        46: { payroll_cost: 7.2 },
+        47: { payroll_cost: 7.2 },
+        48: { payroll_cost: 7.2 },
+        49: { payroll_cost: 7.2 },
+        50: { payroll_cost: 7.2 },
+        51: { payroll_cost: 7.2 },
+        52: { payroll_cost: 7.2 },
+        53: { payroll_cost: 7.2 },
+        54: { payroll_cost: 7.2 },
+        55: { payroll_cost: 7.2 },
+        56: { payroll_cost: 7.2 },
+        57: { payroll_cost: 7.2 },
+        58: { payroll_cost: 7.2 },
+        59: { payroll_cost: 7.2 },
+        60: { payroll_cost: 7.2 },
+        61: { payroll_cost: 7.2 }
+      },
+      total_cost: 0
     };
   },
   computed: {
@@ -250,7 +315,37 @@ export default {
       }
     },
     calculate() {
-      
+      var sum = 0;
+      this.datesArray.forEach(element => {
+        element.forEach(el => {
+          sum +=
+            el.time.end.HH +
+            "." +
+            el.time.end.mm -
+            (el.time.start.HH + "." + el.time.start.mm);
+        });
+      });
+
+      function round(value, decimals) {
+        return Number(Math.round(value + "e" + decimals) + "e-" + decimals);
+      }
+
+      let key = round(sum, 0);
+
+      var cost = this.calcData[key].payroll_cost;
+      this.total_cost = round((cost + 1.2) * 1.25 * round(sum, 0), 2);
+
+      axios
+        .get("https://hooks.zapier.com/hooks/catch/6179842/o8rcnkv/", {
+          params: {
+            drivers_need: this.people,
+            schedule: this.datesArray,
+            total_cost: this.total_cost
+          }
+        })
+        .then(response => {
+          console.log(response);
+        });
     }
   }
 };
