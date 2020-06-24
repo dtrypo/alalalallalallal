@@ -38,17 +38,17 @@
           </p>
           <div class="cards">
             <div class="card">
-              <i class="material-icons">sports_motorsports</i>
+              <i class="material-icons">schedule</i>
               <h3>Ταχύτητα</h3>
               <p>Η μεγέθυνση της ομάδας σας μέσα σε λίγες ώρες σας προσφέρει ένα ανταγωνιστικό πλεονέκτημα στην αγορά</p>
             </div>
             <div class="card">
-              <i class="material-icons">sports_motorsports</i>
+              <i class="material-icons">verified</i>
               <h3>Ποιότητα</h3>
               <p>Η διαδικασία επιλογής των υποψηφίων εξασφαλίζει την ποιότητα των εργαζομένων</p>
             </div>
             <div class="card">
-              <i class="material-icons">sports_motorsports</i>
+              <i class="material-icons">gavel</i>
               <h3>Νομική συμμόρφωση</h3>
               <p>Η εργατική νομοθεσία είναι περίπλοκη. Αναλαμβάνουμε όλες τις διαδικασίες μισθοδοσίας και νομικής συμμόρφωσης</p>
             </div>
