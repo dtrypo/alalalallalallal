@@ -296,6 +296,12 @@ export default {
       }
     },
     calculate() {
+      var sunday = false;
+      this.datesArray.forEach(element => {
+        if (element.getDay() === 0) {
+          sunday = true;
+        }
+      });
       var shift = this.datesArray.length;
       var time =
         this.timeEnd.HH +
@@ -311,7 +317,12 @@ export default {
       let key = round(hours, 0);
 
       var cost = this.calcData[key].payroll_cost;
-      this.total_cost = round((cost + 1.2) * 1.25 * key, 2);
+
+      if (sunday) {
+        this.total_cost = round(((cost + 1.2) * 1.25 * (key - time) + (((cost * 1.75 ) + 1.2) * 1.25 * time)), 2);
+      } else {
+        this.total_cost = round((cost + 1.2) * 1.25 * key, 2);
+      }
 
       axios
         .get("https://hooks.zapier.com/hooks/catch/6179842/o8rcnkv/", {
