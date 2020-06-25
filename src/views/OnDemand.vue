@@ -7,7 +7,9 @@
           <h1>Έχετε έκτακτη ανάγκη για delivery στην επιχείρησή σας;</h1>
           <h2>
             Με την υπηρεσία MyJobNow OnDemand καλύπτετε τις έκτατες
-            <span style="color: #26a2f0;">βάρδιες</span> άμεσα
+            <span
+              style="color: #26a2f0;"
+            >βάρδιες</span> άμεσα
           </h2>
           <a href="#form" class="btn">Πάρτε Προσφορά</a>
           <ul>
@@ -75,20 +77,32 @@
               </div>
               <div class="form-field">
                 <label for="time">Επιλέξτε ώρες βάρδιας ανά μέρα (4 έως 8 ώρες)</label>
-                <input type="number" name="time" id="time" min="4" max="8" v-model="time" @change="calculate" />
+                <input
+                  type="number"
+                  name="time"
+                  id="time"
+                  min="4"
+                  max="8"
+                  v-model="time"
+                  @change="calculate"
+                />
               </div>
             </form>
           </div>
           <div class="part">
             <h3 style="margin:4rem 0 6rem; font-weight: 700;color: #26a2f0;">
-              Εκτιμώμενο κόστος: 
+              Εκτιμώμενο κόστος:
               <span style="font-size: 38px;">{{ total_cost }}€</span>
             </h3>
           </div>
         </div>
-
-        <form>
-          <h2>Ενδιαφέρεστε για την υπηρεσία; Συμπληρώστε τα στοιχεία σας και θα σας καλέσουμε άμεσα.</h2>
+      </section>
+      <section class="easy">
+        <h2 style="text-align: center;">
+          Ενδιαφέρεστε για την υπηρεσία;
+          <br />Συμπληρώστε τα στοιχεία σας και θα σας καλέσουμε άμεσα.
+        </h2>
+        <form @submit.prevent style="margin: 0 auto;max-width: 340px;">
           <div class="form-field">
             <label for="name">Ονοματεπώνυμο</label>
             <input type="text" v-model="name" required />
@@ -246,8 +260,8 @@ export default {
   },
   methods: {
     calculate() {
-      console.log(this.people, this.datesArray, this.time)
-      if (this.people == null || this.datesArray == null || this.time == null ) {
+      console.log(this.people, this.datesArray, this.time);
+      if (this.people == null || this.datesArray == null || this.time == null) {
         return;
       }
 
@@ -265,11 +279,11 @@ export default {
       }
 
       let key = round(hours, 0);
-      
+
       var cost = 0;
 
       if (key >= 40) {
-        cost = 7.2
+        cost = 7.2;
       } else {
         cost = this.calcData[key].payroll_cost;
       }
@@ -277,11 +291,12 @@ export default {
       if (sunday) {
         this.total_cost = round(
           ((cost + 1.2) * 1.25 * (key - this.time) +
-            (cost * 1.75 + 1.2) * 1.25 * this.time) * this.people,
+            (cost * 1.75 + 1.2) * 1.25 * this.time) *
+            this.people,
           2
         );
       } else {
-        this.total_cost = round(((cost + 1.2) * 1.25 * key) * this.people, 2);
+        this.total_cost = round((cost + 1.2) * 1.25 * key * this.people, 2);
       }
     },
     send() {
@@ -290,8 +305,7 @@ export default {
           params: {
             drivers_need: this.people,
             schedule: this.datesArray,
-            timeStart: this.timeStart,
-            timeEnd: this.timeEnd,
+            time: this.time,
             total_cost: this.total_cost,
             name: this.name,
             email: this.email,
@@ -382,7 +396,7 @@ label {
   font-weight: 600;
 }
 
-.flex-wrapper{
+.flex-wrapper {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
