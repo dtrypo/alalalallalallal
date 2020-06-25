@@ -4,10 +4,11 @@
       <div class="wrapper-site">
         <div class="header-content">
           <img src="../assets/logo.png" alt="logo" width="75" height="75" />
-          <h1>
-            Βρείτε άτομο για delivery
-            <br />όταν το χρειάζεστε
-          </h1>
+          <h1>Έχετε έκτακτη ανάγκη για delivery στην επιχείρησή σας;</h1>
+          <h2>
+            Με την υπηρεσία MyJobNow OnDemand καλύπτετε τις έκτατες
+            <span style="color: #26a2f0;">βάρδιες</span> άμεσα
+          </h2>
           <a href="#form" class="btn">Πάρτε Προσφορά</a>
           <ul>
             <li>
@@ -57,28 +58,35 @@
       </section>
       <section id="form" class="wrapper-site">
         <h2>Συμπληρώστε τις ανάγκες σας και δείτε το εκτιμώμενο τελικό κόστος</h2>
-        <form @submit.prevent>
-          <div class="form-field">
-            <label for="people">Επιλέξτε πλήθος εργαζομένων</label>
-            <input type="number" v-model="people" />
+        <div class="flex-wrapper">
+          <div class="part">
+            <h3 style="margin:4rem 0 6rem; font-weight: 700;color: #26a2f0;">
+              Εκτιμώμενο κόστος: 
+              <span style="font-size: 38px;">{{ total_cost }}€</span>
+            </h3>
           </div>
-          <div class="form-field">
-            <label for="date">Επιλέξτε ημερομηνίες (μέγιστο διάστημα 7 ημερών)</label>
-            <date-picker id="date" mode="range" v-model="dates"></date-picker>
-            <small
-              style="color:red;margin:0 0 1rem;"
-              v-if="dateError"
-            >Επιλέξτε από 1 έως 7 ημέρες για να συνεχίσετε</small>
+          <div class="part">
+            <form @submit.prevent>
+              <div class="form-field">
+                <label for="people">Επιλέξτε πλήθος εργαζομένων</label>
+                <input type="number" min="1" v-model="people" @change="calculate" />
+              </div>
+              <div class="form-field">
+                <label for="date">Επιλέξτε ημερομηνίες (μέγιστο διάστημα 7 ημερών)</label>
+                <date-picker id="date" mode="range" v-model="dates"></date-picker>
+                <small
+                  style="color:red;margin:0 0 1rem;"
+                  v-if="dateError"
+                >Επιλέξτε από 1 έως 7 ημέρες για να συνεχίσετε</small>
+              </div>
+              <div class="form-field">
+                <label for="time">Επιλέξτε ώρες βάρδιας ανά μέρα (4 έως 8 ώρες)</label>
+                <input type="number" name="time" id="time" min="4" max="8" v-model="time" @change="calculate" />
+              </div>
+            </form>
           </div>
-          <div class="form-field">
-            <label for="time">Επιλέξτε ώρες βάρδιας ανά μέρα (4 έως 8 ώρες)</label>
-            <input type="number" name="time" id="time" min="4" max="8" v-model="time" />
-          </div>
-          <div class="form-field">
-            <button v-if="!dateError" type="submit" @click="calculate">Υπολογισμός Κόστους</button>
-          </div>
-          <h3 style="margin:4rem 0 6rem; font-weight: 700;color: #26a2f0;">Το εκτιμώμενο κόστος για την υπηρεσία είναι: <span style="font-size: 38px;">{{ total_cost }}€</span> </h3>
-        </form>
+        </div>
+
         <form>
           <h2>Ενδιαφέρεστε για την υπηρεσία; Συμπληρώστε τα στοιχεία σας και θα σας καλέσουμε άμεσα.</h2>
           <div class="form-field">
@@ -199,28 +207,7 @@ export default {
         37: { payroll_cost: 7.3 },
         38: { payroll_cost: 7.26 },
         39: { payroll_cost: 7.23 },
-        40: { payroll_cost: 7.2 },
-        41: { payroll_cost: 7.2 },
-        42: { payroll_cost: 7.2 },
-        43: { payroll_cost: 7.2 },
-        44: { payroll_cost: 7.2 },
-        45: { payroll_cost: 7.2 },
-        46: { payroll_cost: 7.2 },
-        47: { payroll_cost: 7.2 },
-        48: { payroll_cost: 7.2 },
-        49: { payroll_cost: 7.2 },
-        50: { payroll_cost: 7.2 },
-        51: { payroll_cost: 7.2 },
-        52: { payroll_cost: 7.2 },
-        53: { payroll_cost: 7.2 },
-        54: { payroll_cost: 7.2 },
-        55: { payroll_cost: 7.2 },
-        56: { payroll_cost: 7.2 },
-        57: { payroll_cost: 7.2 },
-        58: { payroll_cost: 7.2 },
-        59: { payroll_cost: 7.2 },
-        60: { payroll_cost: 7.2 },
-        61: { payroll_cost: 7.2 }
+        40: { payroll_cost: 7.2 }
       },
       total_cost: 0
     };
@@ -253,10 +240,17 @@ export default {
       if (this.dates.start == null && this.dates.end == null) {
         this.dateError = true;
       }
+
+      this.calculate();
     }
   },
   methods: {
     calculate() {
+      console.log(this.people, this.datesArray, this.time)
+      if (this.people == null || this.datesArray == null || this.time == null ) {
+        return;
+      }
+
       var sunday = false;
       this.datesArray.forEach(element => {
         if (element.getDay() === 0) {
@@ -264,27 +258,33 @@ export default {
         }
       });
       var shift = this.datesArray.length;
-      var hours = this.time * shift * this.people;
+      var hours = this.time * shift;
 
       function round(value, decimals) {
         return Number(Math.round(value + "e" + decimals) + "e-" + decimals);
       }
 
       let key = round(hours, 0);
+      
+      var cost = 0;
 
-      var cost = this.calcData[key].payroll_cost;
+      if (key >= 40) {
+        cost = 7.2
+      } else {
+        cost = this.calcData[key].payroll_cost;
+      }
 
       if (sunday) {
         this.total_cost = round(
-          (cost + 1.2) * 1.25 * (key - this.time) +
-            (cost * 1.75 + 1.2) * 1.25 * this.time,
+          ((cost + 1.2) * 1.25 * (key - this.time) +
+            (cost * 1.75 + 1.2) * 1.25 * this.time) * this.people,
           2
         );
       } else {
-        this.total_cost = round((cost + 1.2) * 1.25 * key, 2);
+        this.total_cost = round(((cost + 1.2) * 1.25 * key) * this.people, 2);
       }
     },
-    send(){
+    send() {
       axios
         .get("https://hooks.zapier.com/hooks/catch/6179842/o8rcnkv/", {
           params: {
@@ -380,5 +380,17 @@ i {
 
 label {
   font-weight: 600;
+}
+
+.flex-wrapper{
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.part {
+  min-width: 34rem;
+  margin: 2rem;
 }
 </style>
