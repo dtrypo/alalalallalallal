@@ -71,32 +71,16 @@
             >Επιλέξτε από 1 έως 7 ημέρες για να συνεχίσετε</small>
           </div>
           <div class="form-field">
-            <label for="time">Επιλέξτε βάρδια ανά μέρα (4 έως 8 ώρες)</label>
-            <div style="margin-left:2rem;">
-              <span style="margin-right:1rem; white-space: nowrap;">
-                Έναρξη:
-                <vue-timepicker
-                  :minute-interval="10"
-                  close-on-complete
-                  v-model="timeStart"
-                  @change="checkTime()"
-                ></vue-timepicker>
-              </span>
-              <span style="margin-right:1rem; white-space: nowrap;">
-                Λήξη:
-                <vue-timepicker
-                  :minute-interval="10"
-                  close-on-complete
-                  v-model="timeEnd"
-                  @change="checkTime()"
-                ></vue-timepicker>
-              </span>
-            </div>
-            <small
-              style="color:red;margin:0 0 1rem;"
-              v-if="errorTime"
-            >Επιλέξτε από 4 έως 8 ώρες για να συνεχίσετε</small>
+            <label for="time">Επιλέξτε ώρες βάρδιας ανά μέρα (4 έως 8 ώρες)</label>
+            <input type="number" name="time" id="time" min="4" max="8" v-model="time" />
           </div>
+          <div class="form-field">
+            <button v-if="!dateError" type="submit" @click="calculate">Υπολογισμός Κόστους</button>
+          </div>
+          <h3 style="margin:4rem 0 6rem; font-weight: 700;color: #26a2f0;">Το εκτιμώμενο κόστος για την υπηρεσία είναι: <span style="font-size: 38px;">{{ total_cost }}€</span> </h3>
+        </form>
+        <form>
+          <h2>Ενδιαφέρεστε για την υπηρεσία; Συμπληρώστε τα στοιχεία σας και θα σας καλέσουμε άμεσα.</h2>
           <div class="form-field">
             <label for="name">Ονοματεπώνυμο</label>
             <input type="text" v-model="name" required />
@@ -110,10 +94,9 @@
             <input type="mail" v-model="email" required />
           </div>
           <div class="form-field">
-            <button v-if="!dateError && !errorTime" type="submit" @click="calculate">Δείτε το κόστος</button>
+            <button type="submit" @click="send">Ενδιαφέρομαι</button>
           </div>
         </form>
-        <h4 style="margin-top:2rem;">Το εκτιμώμενο κόστος για την υπηρεσία είναι: {{ total_cost }}€</h4>
       </section>
     </main>
     <footer style="background-color: #26a2f0;color:#fff;padding:4rem 0;">
@@ -158,14 +141,12 @@
 
 <script>
 import { DatePicker } from "v-calendar";
-import VueTimepicker from "vue2-timepicker";
 import axios from "axios";
 
 export default {
   name: "Calendar",
   components: {
-    DatePicker,
-    VueTimepicker
+    DatePicker
   },
   data() {
     return {
@@ -178,9 +159,7 @@ export default {
       phone: null,
       email: null,
       dateError: false,
-      errorTime: false,
-      timeStart: null,
-      timeEnd: null,
+      time: 4,
       calcData: {
         2: { payroll_cost: 8.7 },
         3: { payroll_cost: 8.66 },
@@ -277,24 +256,6 @@ export default {
     }
   },
   methods: {
-    checkTime() {
-      if (this.timeEnd != null && this.timeStart != null) {
-        if (
-          this.timeEnd.HH +
-            this.timeEnd.mm -
-            (this.timeStart.HH + this.timeStart.mm) <
-            400 ||
-          this.timeEnd.HH +
-            this.timeEnd.mm -
-            (this.timeStart.HH + this.timeStart.mm) >
-            800
-        ) {
-          this.errorTime = true;
-        } else {
-          this.errorTime = false;
-        }
-      }
-    },
     calculate() {
       var sunday = false;
       this.datesArray.forEach(element => {
@@ -303,12 +264,7 @@ export default {
         }
       });
       var shift = this.datesArray.length;
-      var time =
-        this.timeEnd.HH +
-        "." +
-        this.timeEnd.mm -
-        (this.timeStart.HH + "." + this.timeStart.mm);
-      var hours = time * shift * this.people;
+      var hours = this.time * shift * this.people;
 
       function round(value, decimals) {
         return Number(Math.round(value + "e" + decimals) + "e-" + decimals);
@@ -319,11 +275,16 @@ export default {
       var cost = this.calcData[key].payroll_cost;
 
       if (sunday) {
-        this.total_cost = round(((cost + 1.2) * 1.25 * (key - time) + (((cost * 1.75 ) + 1.2) * 1.25 * time)), 2);
+        this.total_cost = round(
+          (cost + 1.2) * 1.25 * (key - this.time) +
+            (cost * 1.75 + 1.2) * 1.25 * this.time,
+          2
+        );
       } else {
         this.total_cost = round((cost + 1.2) * 1.25 * key, 2);
       }
-
+    },
+    send(){
       axios
         .get("https://hooks.zapier.com/hooks/catch/6179842/o8rcnkv/", {
           params: {
