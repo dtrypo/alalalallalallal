@@ -11,9 +11,12 @@ Vue.use(VueRouter)
     component: Home
   },
   {
-    path: '/calculator',
-    name: 'Calculator',
-    component: () => import('../views/Calculator.vue')
+    path: '/ondemand',
+    name: 'OnDemand',
+    component: () => import('../views/OnDemand.vue'),
+    meta: {
+      title: 'MyJobNow OnDemand - Κάλυψε τις ανάγκες σου',
+    }
   }
 ]
 

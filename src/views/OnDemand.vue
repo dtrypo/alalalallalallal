@@ -60,12 +60,6 @@
         <h2>Συμπληρώστε τις ανάγκες σας και δείτε το εκτιμώμενο τελικό κόστος</h2>
         <div class="flex-wrapper">
           <div class="part">
-            <h3 style="margin:4rem 0 6rem; font-weight: 700;color: #26a2f0;">
-              Εκτιμώμενο κόστος: 
-              <span style="font-size: 38px;">{{ total_cost }}€</span>
-            </h3>
-          </div>
-          <div class="part">
             <form @submit.prevent>
               <div class="form-field">
                 <label for="people">Επιλέξτε πλήθος εργαζομένων</label>
@@ -84,6 +78,12 @@
                 <input type="number" name="time" id="time" min="4" max="8" v-model="time" @change="calculate" />
               </div>
             </form>
+          </div>
+          <div class="part">
+            <h3 style="margin:4rem 0 6rem; font-weight: 700;color: #26a2f0;">
+              Εκτιμώμενο κόστος: 
+              <span style="font-size: 38px;">{{ total_cost }}€</span>
+            </h3>
           </div>
         </div>
 
@@ -152,7 +152,7 @@ import { DatePicker } from "v-calendar";
 import axios from "axios";
 
 export default {
-  name: "Calendar",
+  name: "OnDemand",
   components: {
     DatePicker
   },
