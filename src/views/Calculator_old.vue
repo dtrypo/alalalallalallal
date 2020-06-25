@@ -65,37 +65,41 @@
           <div class="form-field">
             <label for="date">Επιλέξτε ημερομηνίες (μέγιστο διάστημα 7 ημερών)</label>
             <date-picker id="date" mode="range" v-model="dates"></date-picker>
-            <small
-              style="color:red;margin:0 0 1rem;"
-              v-if="dateError"
-            >Επιλέξτε από 1 έως 7 ημέρες για να συνεχίσετε</small>
+            <small style="color:red;" v-if="dateError">Επιλέξτε από 1 έως 7 ημέρες για να συνεχίσετε</small>
           </div>
           <div class="form-field">
-            <label for="time">Επιλέξτε βάρδια ανά μέρα (4 έως 8 ώρες)</label>
-            <div style="margin-left:2rem;">
-              <span style="margin-right:1rem; white-space: nowrap;">
-                Έναρξη:
-                <vue-timepicker
-                  :minute-interval="10"
-                  close-on-complete
-                  v-model="timeStart"
-                  @change="checkTime()"
-                ></vue-timepicker>
-              </span>
-              <span style="margin-right:1rem; white-space: nowrap;">
-                Λήξη:
-                <vue-timepicker
-                  :minute-interval="10"
-                  close-on-complete
-                  v-model="timeEnd"
-                  @change="checkTime()"
-                ></vue-timepicker>
-              </span>
+            <div v-if="dates.start != null && !dateError">
+              <label for="time">Επιλέξτε βάρδια ανά μέρα (4 έως 8 ώρες)</label>
+              <small style="color:red;" v-if="errorTime">Επιλέξτε από 4 έως 8 ώρες για να συνεχίσετε</small>
+              <div v-for="(date, index) in datesArray" :key="index">
+                <div style="margin-top: 1rem;">
+                  <strong>Επιλέξτε βάρδια για τον εργαζόμενο {{ index + 1 }}</strong>
+                </div>
+                <div v-for="(d, i) in date" :key="i">
+                  <div style="margin-top: 2rem;">{{ d.date | moment("dddd DD/MM/YYYY") }}</div>
+                  <div style="margin-left:2rem;">
+                    <span style="margin-right:1rem; white-space: nowrap;">
+                      Έναρξη:
+                      <vue-timepicker
+                        :minute-interval="10"
+                        close-on-complete
+                        v-model="d.time.start"
+                        @change="checkTime(d)"
+                      ></vue-timepicker>
+                    </span>
+                    <span style="margin-right:1rem; white-space: nowrap;">
+                      Λήξη:
+                      <vue-timepicker
+                        :minute-interval="10"
+                        close-on-complete
+                        v-model="d.time.end"
+                        @change="checkTime(d)"
+                      ></vue-timepicker>
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
-            <small
-              style="color:red;margin:0 0 1rem;"
-              v-if="errorTime"
-            >Επιλέξτε από 4 έως 8 ώρες για να συνεχίσετε</small>
           </div>
           <div class="form-field">
             <label for="name">Ονοματεπώνυμο</label>
@@ -179,8 +183,6 @@ export default {
       email: null,
       dateError: false,
       errorTime: false,
-      timeStart: null,
-      timeEnd: null,
       calcData: {
         2: { payroll_cost: 8.7 },
         3: { payroll_cost: 8.66 },
@@ -258,7 +260,24 @@ export default {
       var daylist = getDaysArray(this.dates.start, this.dates.end);
       daylist.map(v => v.toISOString().slice(0, 10)).join("");
 
-      return daylist;
+      var final = [];
+      daylist.forEach(element => {
+        final.push({
+          date: element,
+          time: {
+            start: null,
+            end: null
+          }
+        });
+      });
+
+      var pickers = [];
+
+      for (let i = 0; i < this.people; i++) {
+        pickers.push(final);
+      }
+
+      return pickers;
     }
   },
   watch: {
@@ -267,63 +286,61 @@ export default {
         this.dateError = false;
       } else {
         this.dateError = true;
-        this.dates.start = null;
-        this.dates.end = null;
-      }
-
-      if (this.dates.start == null && this.dates.end == null) {
-        this.dateError = true;
       }
     }
   },
   methods: {
-    checkTime() {
-      if (this.timeEnd != null && this.timeStart != null) {
+    checkTime(d) {
+      this.errorTime = false;
+      if (d.time.start != null && d.time.end != null) {
         if (
-          this.timeEnd.HH +
-            this.timeEnd.mm -
-            (this.timeStart.HH + this.timeStart.mm) <
-            400 ||
-          this.timeEnd.HH +
-            this.timeEnd.mm -
-            (this.timeStart.HH + this.timeStart.mm) >
-            800
+          d.time.start.HH != "" &&
+          d.time.start.mm != "" &&
+          d.time.end.HH != "" &&
+          d.time.end.mm != ""
         ) {
-          this.errorTime = true;
-        } else {
-          this.errorTime = false;
+          if (
+            d.time.end.HH +
+              d.time.end.mm -
+              (d.time.start.HH + d.time.start.mm) <
+              400 ||
+            d.time.end.HH +
+              d.time.end.mm -
+              (d.time.start.HH + d.time.start.mm) >
+              800
+          ) {
+            this.errorTime = true;
+          }
         }
       }
     },
     calculate() {
-      var shift = this.datesArray.length;
-      var time =
-        this.timeEnd.HH +
-        "." +
-        this.timeEnd.mm -
-        (this.timeStart.HH + "." + this.timeStart.mm);
-      var hours = time * shift * this.people;
+      var sum = 0;
+      this.datesArray.forEach(element => {
+        element.forEach(el => {
+          sum +=
+            el.time.end.HH +
+            "." +
+            el.time.end.mm -
+            (el.time.start.HH + "." + el.time.start.mm);
+        });
+      });
 
       function round(value, decimals) {
         return Number(Math.round(value + "e" + decimals) + "e-" + decimals);
       }
 
-      let key = round(hours, 0);
+      let key = round(sum, 0);
 
       var cost = this.calcData[key].payroll_cost;
-      this.total_cost = round((cost + 1.2) * 1.25 * key, 2);
+      this.total_cost = round((cost + 1.2) * 1.25 * round(sum, 0), 2);
 
       axios
         .get("https://hooks.zapier.com/hooks/catch/6179842/o8rcnkv/", {
           params: {
             drivers_need: this.people,
             schedule: this.datesArray,
-            timeStart: this.timeStart,
-            timeEnd: this.timeEnd,
-            total_cost: this.total_cost,
-            name: this.name,
-            email: this.email,
-            phone: this.phone
+            total_cost: this.total_cost
           }
         })
         .then(response => {
