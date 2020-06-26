@@ -260,7 +260,7 @@ export default {
   },
   methods: {
     calculate() {
-      console.log(this.people, this.datesArray, this.time);
+      
       if (this.people == null || this.datesArray == null || this.time == null) {
         return;
       }
@@ -298,6 +298,8 @@ export default {
       } else {
         this.total_cost = round((cost + 1.2) * 1.25 * key * this.people, 2);
       }
+
+      this.$ga.event('OnDemand', 'click', 'Calculator', 1)
     },
     send() {
       axios
@@ -314,6 +316,7 @@ export default {
         })
         .then(response => {
           console.log(response);
+          this.$ga.event('OnDemand', 'click', 'Contact', 1)
         });
     }
   }

@@ -2,6 +2,7 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 import store from './store'
+import VueAnalytics from 'vue-analytics';
 
 const moment = require('moment')
 require('moment/locale/el')
@@ -11,6 +12,12 @@ Vue.use(require('vue-moment'), {
 })
 
 Vue.config.productionTip = false
+
+// Configuration VueAnalytics
+Vue.use(VueAnalytics, {
+  id: 'UA-109845697-8',
+  router
+});
 
 router.beforeEach((to, from, next) => {
   // This goes through the matched routes from last to first, finding the closest route with a title.

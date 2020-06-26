@@ -10,20 +10,12 @@
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <script src="https://kit.fontawesome.com/9e29bdf6f1.js" crossorigin="anonymous"></script>
-  <!-- Global site tag (gtag.js) - Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-109845697-8"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag() { dataLayer.push(arguments); }
-    gtag('js', new Date());
-    gtag('config', 'UA-109845697-8');
-  </script>
   <!-- Facebook Pixel Code -->
   <script>
     !function (f, b, e, v, n, t, s) {
       if (f.fbq) return; n = f.fbq = function () {
         n.callMethod ?
-        n.callMethod.apply(n, arguments) : n.queue.push(arguments)
+          n.callMethod.apply(n, arguments) : n.queue.push(arguments)
       };
       if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0';
       n.queue = []; t = b.createElement(e); t.async = !0;
@@ -46,6 +38,17 @@
   </noscript>
   <div id="app"></div>
   <!-- built files will be auto injected -->
+  <script>
+    function gaEvent(ecat = 'OnDemand Calculator') {
+      console.log("ga");
+      ga.getAll()[0].send('event', {
+        eventCategory: ecat,
+        eventAction: 'click',
+        eventLabel: window.location.pathname,
+        transport: 'beacon'
+      });
+    }
+  </script>
 </body>
 
 </html>
