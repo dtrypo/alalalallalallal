@@ -4,18 +4,18 @@
       <div class="wrapper-site">
         <div class="header-content">
           <img src="../assets/logo.png" alt="logo" width="75" height="75" />
-          <h1>Έχετε έκτακτη ανάγκη για delivery στην επιχείρησή σας;</h1>
+          <h1>Θέλετε να καλύψετε έκτακτα βάρδιες για delivery στην επιχείρησή σας;</h1>
           <h2>
-            Με την υπηρεσία MyJobNow OnDemand καλύπτετε τις έκτατες
+            Με την υπηρεσία MyJobNow OnDemand καλύπτουμε τις έκτατες
             <span
               style="color: #26a2f0;"
-            >βάρδιες</span> άμεσα
+            >ανάγκες σας</span> άμεσα
           </h2>
           <a href="#form" class="btn">Πάρτε Προσφορά</a>
           <ul>
             <li>
               <i class="material-icons">today</i>
-              <span>Πες μας τις βάρδιες που θέλεις να καλύψεις</span>
+              <span>Πείτε μας τις βάρδιες που θέλετε να καλύψετε</span>
             </li>
             <li>
               <i class="material-icons">done</i>
@@ -97,12 +97,13 @@
           </div>
         </div>
       </section>
-      <section class="easy">
+      <section class="easy" v-if="!loader">
         <h2 style="text-align: center;">
           Ενδιαφέρεστε για την υπηρεσία;
           <br />Συμπληρώστε τα στοιχεία σας και θα σας καλέσουμε άμεσα.
         </h2>
         <form @submit.prevent style="margin: 0 auto;max-width: 340px;">
+          <h4 style="color: red;" v-if="error">Παρακαλώ συμπληρώστε όλα τα πεδία</h4>
           <div class="form-field">
             <label for="name">Ονοματεπώνυμο</label>
             <input type="text" v-model="name" required />
@@ -119,6 +120,11 @@
             <button type="submit" @click="send">Ενδιαφέρομαι</button>
           </div>
         </form>
+      </section>
+      <section class="easy" v-else>
+        <h2
+          style="text-align: center;"
+        >Ευχαριστούμε για το ενδιαφέρον σας. Ένας εκπρόσωπός μας θα επικοινωνήσει μαζί σας σύντομα.</h2>
       </section>
     </main>
     <footer style="background-color: #26a2f0;color:#fff;padding:4rem 0;">
@@ -168,13 +174,13 @@ import axios from "axios";
 export default {
   name: "OnDemand",
   components: {
-    DatePicker
+    DatePicker,
   },
   data() {
     return {
       dates: {
         start: null,
-        end: null
+        end: null,
       },
       people: 1,
       name: null,
@@ -221,14 +227,16 @@ export default {
         37: { payroll_cost: 7.3 },
         38: { payroll_cost: 7.26 },
         39: { payroll_cost: 7.23 },
-        40: { payroll_cost: 7.2 }
+        40: { payroll_cost: 7.2 },
       },
-      total_cost: 0
+      total_cost: 0,
+      loader: false,
+      error: false
     };
   },
   computed: {
-    datesArray: function() {
-      var getDaysArray = function(s, e) {
+    datesArray: function () {
+      var getDaysArray = function (s, e) {
         for (var a = [], d = new Date(s); d <= e; d.setDate(d.getDate() + 1)) {
           a.push(new Date(d));
         }
@@ -236,13 +244,13 @@ export default {
       };
 
       var daylist = getDaysArray(this.dates.start, this.dates.end);
-      daylist.map(v => v.toISOString().slice(0, 10)).join("");
+      daylist.map((v) => v.toISOString().slice(0, 10)).join("");
 
       return daylist;
-    }
+    },
   },
   watch: {
-    datesArray: function() {
+    datesArray: function () {
       if (this.datesArray.length <= 7) {
         this.dateError = false;
       } else {
@@ -256,17 +264,16 @@ export default {
       }
 
       this.calculate();
-    }
+    },
   },
   methods: {
     calculate() {
-      
       if (this.people == null || this.datesArray == null || this.time == null) {
         return;
       }
 
       var sunday = false;
-      this.datesArray.forEach(element => {
+      this.datesArray.forEach((element) => {
         if (element.getDay() === 0) {
           sunday = true;
         }
@@ -299,27 +306,39 @@ export default {
         this.total_cost = round((cost + 1.2) * 1.25 * key * this.people, 2);
       }
 
-      this.$ga.event('OnDemand', 'click', 'Calculator', 1)
+      this.$ga.event("OnDemand", "click", "Calculator", 1);
     },
     send() {
-      axios
-        .get("https://hooks.zapier.com/hooks/catch/6179842/o8rcnkv/", {
-          params: {
-            drivers_need: this.people,
-            schedule: this.datesArray,
-            time: this.time,
-            total_cost: this.total_cost,
-            name: this.name,
-            email: this.email,
-            phone: this.phone
-          }
-        })
-        .then(response => {
-          console.log(response);
-          this.$ga.event('OnDemand', 'click', 'Contact', 1)
-        });
-    }
-  }
+      if (
+        this.name &&
+        this.email &&
+        this.phone &&
+        this.name != "" &&
+        this.email != "" &&
+        this.phone != ""
+      ) {
+        this.loader = true;
+        axios
+          .get("https://hooks.zapier.com/hooks/catch/6179842/o8rcnkv/", {
+            params: {
+              drivers_need: this.people,
+              schedule: this.datesArray,
+              time: this.time,
+              total_cost: this.total_cost,
+              name: this.name,
+              email: this.email,
+              phone: this.phone,
+            },
+          })
+          .then((response) => {
+            console.log(response);
+            this.$ga.event("OnDemand", "click", "Contact", 1);
+          });
+      } else {
+        this.error = true;
+      }
+    },
+  },
 };
 import "vue2-timepicker/dist/VueTimepicker.css";
 </script>
